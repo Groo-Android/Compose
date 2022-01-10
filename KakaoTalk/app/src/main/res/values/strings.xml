@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">KakaoTalk</string>
+    
+    <string name="opponent_name">그룹채팅 4</string>
+
+    <string name="back_toast_msg">채팅방을 나갑니다</string>
+    <string name="search_toast_msg">키워드를 검색합니다</string>
+    <string name="more_toast_msg">더 많은 기능을 사용해보세요</string>
+    <string name="profile_toast_msg">상대방의 프로필을 구경합니다</string>
+    <string name="content_toast_msg">메세지를 삭제하거나 다양한 기능을 제공합니다</string>
 </resources>

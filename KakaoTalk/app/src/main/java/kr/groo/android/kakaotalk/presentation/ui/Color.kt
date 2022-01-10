@@ -1,4 +1,4 @@
-package kr.groo.android.kakaotalk.ui.theme
+package kr.groo.android.kakaotalk.presentation.ui
 
 import androidx.compose.ui.graphics.Color
 
