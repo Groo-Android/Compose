@@ -3,6 +3,7 @@ package kr.groo.android.kakaotalk.presentation.screen
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
@@ -11,11 +12,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -70,6 +73,7 @@ fun ChatScreen() {
                 backgroundColor = Color(ContextCompat.getColor(context, R.color.chatBackground)),
             )
         },
+        bottomBar = { ChatInputBox() },
         backgroundColor = Color(ContextCompat.getColor(context, R.color.chatBackground))
     ) {
         Conversation(sampleChatData)
@@ -81,6 +85,7 @@ fun Conversation(chats: List<Chat>) {
     LazyColumn(modifier = Modifier
         .fillMaxWidth()
         .fillMaxHeight()
+        .padding(bottom = 70.dp)
     ) {
         items(chats) { chat ->
             if (chat.isOpponent)
@@ -91,12 +96,17 @@ fun Conversation(chats: List<Chat>) {
     }
 }
 
+/***
+ * 상대방 채팅 UI
+ */
 @Composable
 fun OpponentChatCard(chat: Chat) {
 
     val context = LocalContext.current
 
-    Row(modifier = Modifier.fillMaxWidth()) {
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .padding(all = 10.dp)) {
         Image(
             painter = painterResource(chat.profileImg),
             contentDescription = null,
@@ -126,14 +136,12 @@ fun OpponentChatCard(chat: Chat) {
                 when (chat.contentType) {
                     Chat.ContentType.TEXT -> Text(
                         text = chat.contentText.toString(),
-                        modifier = Modifier
-                            .padding(all = 4.dp)
+                        modifier = Modifier.padding(all = 4.dp)
                     )
                     Chat.ContentType.IMG -> Image(
                         painter = painterResource(chat.contentImg ?: R.drawable.img_404),
                         contentDescription = null,
-                        modifier = Modifier
-                            .size(150.dp)
+                        modifier = Modifier.size(150.dp)
                     )
                 }
             }
@@ -145,26 +153,29 @@ fun OpponentChatCard(chat: Chat) {
             text = chat.sendAt,
             fontSize = 8.sp,
             color = Color(ContextCompat.getColor(context, R.color.chatSendAtTextColor)),
-            modifier = Modifier
-                .align(Alignment.Bottom)
+            modifier = Modifier.align(Alignment.Bottom)
         )
     }
 }
 
+/***
+ * 본인 채팅 UI
+ */
 @Composable
 fun MyChatCard(chat: Chat) {
 
     val context = LocalContext.current
 
-    Row(modifier = Modifier.fillMaxWidth(),
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .padding(all = 10.dp),
         horizontalArrangement = Arrangement.End
     ) {
         Text(
             text = chat.sendAt,
             fontSize = 8.sp,
             color = Color(ContextCompat.getColor(context, R.color.chatSendAtTextColor)),
-            modifier = Modifier
-                .align(Alignment.Bottom)
+            modifier = Modifier.align(Alignment.Bottom)
         )
 
         Spacer(modifier = Modifier.width(2.dp))
@@ -184,19 +195,82 @@ fun MyChatCard(chat: Chat) {
                 when (chat.contentType) {
                     Chat.ContentType.TEXT -> Text(
                         text = chat.contentText.toString(),
-                        modifier = Modifier
-                            .padding(all = 4.dp)
+                        modifier = Modifier.padding(all = 4.dp)
                     )
                     Chat.ContentType.IMG -> Image(
                         painter = painterResource(chat.contentImg ?: R.drawable.img_404),
                         contentDescription = null,
-                        modifier = Modifier
-                            .size(150.dp)
+                        modifier = Modifier.size(150.dp)
                     )
                 }
             }
         }
     }
+}
+
+/***
+ * 채팅 입력창 UI
+ */
+@Composable
+fun ChatInputBox() {
+
+    val context = LocalContext.current
+
+    Row(
+        modifier = Modifier.background(Color.White),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            painter = painterResource(R.drawable.ic_add_box),
+            contentDescription = null,
+            modifier = Modifier
+                .padding(
+                    horizontal = 10.dp,
+                    vertical = 5.dp
+                )
+                .clickable(
+                    onClick = { showToastMsg(context, R.string.more_toast_msg) }
+                ),
+            colorFilter = ColorFilter.tint(Color.Gray)
+        )
+
+        var text by rememberSaveable { mutableStateOf("") }
+
+        TextField(
+            value = text,
+            onValueChange = { text = it },
+            modifier = Modifier
+                .weight(1F)
+                .padding(vertical = 5.dp),
+            singleLine = true,
+            shape = RoundedCornerShape(20.dp),
+            colors = TextFieldDefaults.textFieldColors(
+                textColor = Color.Black,
+                backgroundColor = Color.LightGray,
+                cursorColor = Color.Black,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+            )
+        )
+
+        Image(
+            painter = painterResource(R.drawable.ic_send),
+            contentDescription = null,
+            modifier = Modifier
+                .padding(
+                    horizontal = 10.dp,
+                    vertical = 5.dp
+                )
+                .clickable(
+                    onClick = { showToastMsg(context, R.string.send_toast_msg) }
+                ),
+            colorFilter = ColorFilter.tint(Color.Gray)
+        )
+    }
+}
+
+private fun showToastMsg(context: Context, resId: Int) {
+    Toast.makeText(context, context.getString(resId), Toast.LENGTH_SHORT).show()
 }
 
 @Preview
@@ -217,6 +291,8 @@ fun PreviewMyChatCard() {
     MyChatCard(sampleChatData[0])
 }
 
-private fun showToastMsg(context: Context, resId: Int) {
-    Toast.makeText(context, context.getString(resId), Toast.LENGTH_SHORT).show()
+@Preview
+@Composable
+fun PreviewChatInputBox() {
+    ChatInputBox()
 }
